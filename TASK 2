@@ -1,0 +1,61 @@
+import socket
+import subprocess
+import re
+from scapy.all import *
+
+# Function to scan open ports
+def scan_open_ports(target):
+    open_ports = []
+    for port in range(1, 1025):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex((target, port))
+        if result == 0:
+            open_ports.append(port)
+        sock.close()
+    return open_ports
+
+# Function to check outdated software versions (dummy function)
+def check_outdated_software(target):
+    # This is a placeholder function.
+    # In a real-world scenario, you'd need to use an API or a database of CVEs.
+    outdated_software = []
+    result = subprocess.run(['nmap', '-sV', target], stdout=subprocess.PIPE)
+    output = result.stdout.decode()
+    software_versions = re.findall(r'(\w+)/(\d+\.\d+)', output)
+    for software, version in software_versions:
+        # Dummy check: if version < 2.0, consider it outdated
+        if float(version) < 2.0:
+            outdated_software.append((software, version))
+    return outdated_software
+
+# Function to check for common misconfigurations (dummy function)
+def check_misconfigurations(target):
+    # This is a placeholder function.
+    # Implement specific checks for misconfigurations based on requirements.
+    misconfigurations = []
+    # Example: Check for open directories
+    response = subprocess.run(['curl', '-I', f'http://{target}'], stdout=subprocess.PIPE)
+    if "200 OK" in response.stdout.decode():
+        misconfigurations.append("Open directory listing found")
+    return misconfigurations
+
+# Main function
+def vulnerability_scan(target):
+    print(f"Scanning {target} for vulnerabilities...\n")
+    
+    # Scan open ports
+    open_ports = scan_open_ports(target)
+    print(f"Open ports: {open_ports}")
+    
+    # Check for outdated software
+    outdated_software = check_outdated_software(target)
+    print(f"Outdated software: {outdated_software}")
+    
+    # Check for misconfigurations
+    misconfigurations = check_misconfigurations(target)
+    print(f"Misconfigurations: {misconfigurations}")
+
+if __name__ == "__main__":
+    target = input("Enter the target IP or URL: ")
+    vulnerability_scan(target)
